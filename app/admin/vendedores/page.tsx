@@ -191,7 +191,9 @@ export default function VendedoresPage() {
                   <div className="flex items-center gap-2">
                     <h3 className="text-lg font-bold text-gray-900">{vendor.name}</h3>
                     {vendor.verified && (
-                      <CheckCircle className="w-5 h-5 text-blue-600" title="Verificado" />
+                      <span title="Verificado">
+  <CheckCircle className="w-5 h-5 text-blue-600" />
+</span>
                     )}
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">

@@ -88,6 +88,7 @@ export const stats = {
 export type Product = typeof mockProducts[0];
 export type Category = typeof categories[0];
 export type Stats = typeof stats;
+
 export const mockVendors = [
   {
     id: 1,

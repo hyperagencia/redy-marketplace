@@ -1,5 +1,5 @@
 import StatsCard from "@/components/admin/StatsCard";
-import { stats, mockProducts } from "@/lib/mock-data";
+import { getAdminStats, getProducts } from "@/lib/supabase/database";
 import { formatPrice } from "@/lib/utils";
 import { 
   Package, 
@@ -10,8 +10,10 @@ import {
   XCircle
 } from "lucide-react";
 
-export default function AdminDashboard() {
-  const pendingProducts = mockProducts.filter(p => p.status === "pending");
+export default async function AdminDashboard() {
+  // Obtener datos reales de Supabase
+  const stats = await getAdminStats();
+  const pendingProducts = await getProducts({ status: 'pending' });
 
   return (
     <div className="p-8">
@@ -31,7 +33,6 @@ export default function AdminDashboard() {
           title="Productos Totales"
           value={stats.totalProducts}
           icon={Package}
-          trend={{ value: 12, isPositive: true }}
         />
         <StatsCard
           title="Pendientes de Aprobar"
@@ -43,13 +44,11 @@ export default function AdminDashboard() {
           title="Vendedores Activos"
           value={stats.activeVendors}
           icon={Users}
-          trend={{ value: 8, isPositive: true }}
         />
         <StatsCard
-          title="Ventas del Mes"
-          value={formatPrice(stats.monthlySales)}
+          title="Ventas Totales"
+          value={formatPrice(stats.totalSales)}
           icon={TrendingUp}
-          trend={{ value: 23, isPositive: true }}
         />
       </div>
 
@@ -64,32 +63,40 @@ export default function AdminDashboard() {
             </span>
           </div>
 
-          <div className="space-y-4">
-            {pendingProducts.map((product) => (
-              <div 
-                key={product.id}
-                className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
-              >
-                <img 
-                  src={product.image} 
-                  alt={product.name}
-                  className="w-16 h-16 rounded-lg object-cover"
-                />
-                <div className="flex-1">
-                  <h3 className="font-semibold text-sm">{product.name}</h3>
-                  <p className="text-xs text-gray-600">{product.seller}</p>
-                </div>
-                <div className="text-right">
-                  <div className="font-bold text-sm">{formatPrice(product.price)}</div>
-                  <div className="text-xs text-gray-600">{product.category}</div>
-                </div>
+          {pendingProducts.length > 0 ? (
+            <>
+              <div className="space-y-4">
+                {pendingProducts.slice(0, 3).map((product: any) => (
+                  <div 
+                    key={product.id}
+                    className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+                  >
+                    <img 
+                      src={product.images?.[0] || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100'} 
+                      alt={product.name}
+                      className="w-16 h-16 rounded-lg object-cover"
+                    />
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-sm">{product.name}</h3>
+                      <p className="text-xs text-gray-600">{product.vendor?.full_name || 'Vendedor'}</p>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-bold text-sm">{formatPrice(product.price)}</div>
+                      <div className="text-xs text-gray-600">{product.category?.name || 'Sin categoría'}</div>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-
-          <button className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-medium transition-colors">
-            Ver todos los pendientes
-          </button>
+              <button className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-medium transition-colors">
+                Ver todos los pendientes
+              </button>
+            </>
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              <Package className="w-12 h-12 mx-auto mb-2 text-gray-400" />
+              <p>No hay productos pendientes de aprobación</p>
+            </div>
+          )}
         </div>
 
         {/* Recent Activity */}
@@ -102,11 +109,11 @@ export default function AdminDashboard() {
                 <CheckCircle className="w-5 h-5 text-green-600" />
               </div>
               <div className="flex-1">
-                <p className="font-medium text-sm">Producto aprobado</p>
+                <p className="font-medium text-sm">Sistema conectado</p>
                 <p className="text-xs text-gray-600">
-                  "Wetsuit Orca S7" fue aprobado y publicado
+                  Base de datos Supabase funcionando correctamente
                 </p>
-                <p className="text-xs text-gray-400 mt-1">Hace 2 horas</p>
+                <p className="text-xs text-gray-400 mt-1">Ahora</p>
               </div>
             </div>
 
@@ -115,24 +122,11 @@ export default function AdminDashboard() {
                 <Users className="w-5 h-5 text-blue-600" />
               </div>
               <div className="flex-1">
-                <p className="font-medium text-sm">Nuevo vendedor</p>
+                <p className="font-medium text-sm">Dashboard activo</p>
                 <p className="text-xs text-gray-600">
-                  Carlos Ruiz se registró como vendedor
+                  {stats.totalProducts} productos en el sistema
                 </p>
-                <p className="text-xs text-gray-400 mt-1">Hace 5 horas</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4">
-              <div className="p-2 bg-red-100 rounded-lg">
-                <XCircle className="w-5 h-5 text-red-600" />
-              </div>
-              <div className="flex-1">
-                <p className="font-medium text-sm">Producto rechazado</p>
-                <p className="text-xs text-gray-600">
-                  "Bicicleta usada" no cumplió los requisitos
-                </p>
-                <p className="text-xs text-gray-400 mt-1">Hace 1 día</p>
+                <p className="text-xs text-gray-400 mt-1">Hace 1 minuto</p>
               </div>
             </div>
 
@@ -141,11 +135,11 @@ export default function AdminDashboard() {
                 <TrendingUp className="w-5 h-5 text-purple-600" />
               </div>
               <div className="flex-1">
-                <p className="font-medium text-sm">Venta completada</p>
+                <p className="font-medium text-sm">Sistema listo</p>
                 <p className="text-xs text-gray-600">
-                  Garmin Forerunner 945 - {formatPrice(280000)}
+                  REDY está listo para recibir productos
                 </p>
-                <p className="text-xs text-gray-400 mt-1">Hace 1 día</p>
+                <p className="text-xs text-gray-400 mt-1">Hace 2 minutos</p>
               </div>
             </div>
           </div>

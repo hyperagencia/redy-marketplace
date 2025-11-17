@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { 
   LayoutDashboard, 
   Package, 
@@ -12,6 +12,8 @@ import {
   ChevronRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/client";
+import { useState, useEffect } from "react";
 
 const menuItems = [
   {
@@ -23,7 +25,6 @@ const menuItems = [
     name: "Productos",
     href: "/admin/productos",
     icon: Package,
-    badge: 12,
   },
   {
     name: "Vendedores",
@@ -44,6 +45,24 @@ const menuItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const supabase = createClient();
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // Obtener usuario actual
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+    });
+  }, []);
+
+  const handleLogout = async () => {
+    setLoading(true);
+    await supabase.auth.signOut();
+    router.push('/login');
+    router.refresh();
+  };
 
   return (
     <aside className="w-64 bg-gray-900 text-white min-h-screen flex flex-col">
@@ -82,12 +101,6 @@ export default function Sidebar() {
                 <span className="font-medium">{item.name}</span>
               </div>
               
-              {item.badge && (
-                <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-bold">
-                  {item.badge}
-                </span>
-              )}
-              
               {isActive && (
                 <ChevronRight className="w-4 h-4" />
               )}
@@ -98,19 +111,29 @@ export default function Sidebar() {
 
       {/* User Section */}
       <div className="p-4 border-t border-gray-800">
-        <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-800">
-          <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center font-bold">
-            LA
+        <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-800 mb-2">
+          <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center font-bold text-sm">
+            {user?.email?.[0].toUpperCase() || 'A'}
           </div>
-          <div className="flex-1">
-            <div className="font-medium text-sm">Luis Admin</div>
-            <div className="text-xs text-gray-400">admin@redy.cl</div>
+          <div className="flex-1 min-w-0">
+            <div className="font-medium text-sm truncate">
+              {user?.user_metadata?.full_name || 'Admin'}
+            </div>
+            <div className="text-xs text-gray-400 truncate">
+              {user?.email || 'admin@redy.cl'}
+            </div>
           </div>
         </div>
         
-        <button className="w-full mt-2 flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:bg-gray-800 hover:text-white transition-all">
+        <button 
+          onClick={handleLogout}
+          disabled={loading}
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:bg-gray-800 hover:text-white transition-all disabled:opacity-50"
+        >
           <LogOut className="w-5 h-5" />
-          <span className="font-medium">Cerrar sesión</span>
+          <span className="font-medium">
+            {loading ? 'Saliendo...' : 'Cerrar sesión'}
+          </span>
         </button>
       </div>
     </aside>

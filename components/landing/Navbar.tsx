@@ -114,13 +114,12 @@ export default function Navbar() {
               </Link>
               <div className="pt-4 border-t border-gray-200 space-y-2">
                 <Link 
-                  href="/admin"
-                  className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-medium transition-all"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <User className="w-5 h-5" />
-                  Ingresar
-                </Link>
+  href="/login"
+  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-all"
+>
+  <User className="w-5 h-5" />
+  Ingresar
+</Link>
               </div>
             </div>
           </motion.div>

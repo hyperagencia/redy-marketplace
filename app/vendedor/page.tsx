@@ -1,50 +1,68 @@
+import { createClient } from "@/lib/supabase/server";
 import { getProducts } from "@/lib/supabase/database";
 import { formatPrice, formatDate } from "@/lib/utils";
-import { 
-  CheckCircle, 
-  XCircle, 
-  Eye,
-  Filter,
-  Search,
-  Package  // <- AGREGAR ESTA LÍNEA
-} from "lucide-react";
+import { Package, Clock, CheckCircle, XCircle, Plus } from "lucide-react"; // <- Agregar Plus aquí
+import Link from "next/link";
 
-export default async function ProductosPage() {
-  // Obtener todos los productos
-  const allProducts = await getProducts();
-  const pendingProducts = await getProducts({ status: 'pending' });
-  const approvedProducts = await getProducts({ status: 'approved' });
+export default async function VendedorDashboard() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  // Obtener productos del vendedor
+  const myProducts = await getProducts({ vendor: user?.id });
+  
+  const pendingCount = myProducts.filter(p => p.approval_status === 'pending').length;
+  const approvedCount = myProducts.filter(p => p.approval_status === 'approved').length;
+  const rejectedCount = myProducts.filter(p => p.approval_status === 'rejected').length;
 
   return (
     <div className="p-8">
-      {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Gestión de Productos
+          Mis Productos
         </h1>
         <p className="text-gray-600">
-          Revisa y aprueba productos subidos por los vendedores
+          Gestiona tus productos y ventas
         </p>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="bg-white p-4 rounded-xl border border-gray-200">
-          <div className="text-sm text-gray-600 mb-1">Total</div>
-          <div className="text-2xl font-bold">{allProducts.length}</div>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="bg-white p-6 rounded-2xl border border-gray-200">
+          <div className="flex items-center gap-3 mb-2">
+            <Package className="w-5 h-5 text-blue-600" />
+            <span className="text-sm text-gray-600">Total</span>
+          </div>
+          <div className="text-3xl font-bold">{myProducts.length}</div>
         </div>
-        <div className="bg-orange-50 p-4 rounded-xl border border-orange-200">
-          <div className="text-sm text-orange-600 mb-1">Pendientes</div>
-          <div className="text-2xl font-bold text-orange-700">{pendingProducts.length}</div>
+
+        <div className="bg-orange-50 p-6 rounded-2xl border border-orange-200">
+          <div className="flex items-center gap-3 mb-2">
+            <Clock className="w-5 h-5 text-orange-600" />
+            <span className="text-sm text-orange-600">Pendientes</span>
+          </div>
+          <div className="text-3xl font-bold text-orange-700">{pendingCount}</div>
         </div>
-        <div className="bg-green-50 p-4 rounded-xl border border-green-200">
-          <div className="text-sm text-green-600 mb-1">Aprobados</div>
-          <div className="text-2xl font-bold text-green-700">{approvedProducts.length}</div>
+
+        <div className="bg-green-50 p-6 rounded-2xl border border-green-200">
+          <div className="flex items-center gap-3 mb-2">
+            <CheckCircle className="w-5 h-5 text-green-600" />
+            <span className="text-sm text-green-600">Aprobados</span>
+          </div>
+          <div className="text-3xl font-bold text-green-700">{approvedCount}</div>
+        </div>
+
+        <div className="bg-red-50 p-6 rounded-2xl border border-red-200">
+          <div className="flex items-center gap-3 mb-2">
+            <XCircle className="w-5 h-5 text-red-600" />
+            <span className="text-sm text-red-600">Rechazados</span>
+          </div>
+          <div className="text-3xl font-bold text-red-700">{rejectedCount}</div>
         </div>
       </div>
 
-      {/* Products Table */}
-      {allProducts.length > 0 ? (
+      {/* Products list */}
+      {myProducts.length > 0 ? (
         <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -52,9 +70,6 @@ export default async function ProductosPage() {
                 <tr>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">
                     Producto
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">
-                    Categoría
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">
                     Precio
@@ -68,7 +83,7 @@ export default async function ProductosPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {allProducts.map((product: any) => (
+                {myProducts.map((product: any) => (
                   <tr key={product.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
@@ -79,12 +94,9 @@ export default async function ProductosPage() {
                         />
                         <div>
                           <div className="font-semibold">{product.name}</div>
-                          <div className="text-sm text-gray-500">{product.condition}</div>
+                          <div className="text-sm text-gray-500 capitalize">{product.condition}</div>
                         </div>
                       </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="text-sm">{product.category?.name || 'Sin categoría'}</span>
                     </td>
                     <td className="px-6 py-4">
                       <span className="font-semibold">{formatPrice(product.price)}</span>
@@ -121,11 +133,18 @@ export default async function ProductosPage() {
         <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center">
           <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            No hay productos todavía
+            No tienes productos todavía
           </h3>
-          <p className="text-gray-600">
-            Los productos aparecerán aquí cuando los vendedores los suban
+          <p className="text-gray-600 mb-6">
+            Comienza subiendo tu primer producto
           </p>
+          <Link
+            href="/vendedor/nuevo"
+            className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition-colors"
+          >
+            <Plus className="w-5 h-5" />
+            Subir Producto
+          </Link>
         </div>
       )}
     </div>

@@ -1,10 +1,21 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { categories } from "@/lib/mock-data";
 import { ArrowRight } from "lucide-react";
 
-export default function Categories() {
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  icon: string;
+}
+
+interface CategoriesProps {
+  categories: Category[];
+  productCounts?: Record<string, number>;
+}
+
+export default function Categories({ categories, productCounts = {} }: CategoriesProps) {
   return (
     <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
       <div className="container mx-auto px-4">
@@ -33,7 +44,7 @@ export default function Categories() {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
           {categories.map((category, index) => (
             <motion.button
-              key={category.slug}
+              key={category.id}
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
@@ -51,7 +62,7 @@ export default function Categories() {
               
               {/* Count */}
               <div className="text-sm text-gray-600">
-                {category.count} productos
+                {productCounts[category.id] || 0} productos
               </div>
             </motion.button>
           ))}

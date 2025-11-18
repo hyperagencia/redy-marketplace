@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getProducts } from "@/lib/supabase/database";
 import { formatPrice, formatDate } from "@/lib/utils";
-import { Package, Clock, CheckCircle, XCircle, Plus } from "lucide-react"; // <- Agregar Plus aquí
+import { Package, Clock, CheckCircle, XCircle, Plus, DollarSign, ShoppingBag } from "lucide-react"; // <- Agregar Plus aquí
 import Link from "next/link";
 
 export default async function VendedorDashboard() {
@@ -10,6 +10,23 @@ export default async function VendedorDashboard() {
   
   // Obtener productos del vendedor
   const myProducts = await getProducts({ vendor: user?.id });
+
+  // Obtener ventas del vendedor
+const { data: orders } = await supabase
+  .from("orders")
+  .select("*, order_items(*)")
+  .eq("vendor_id", user?.id);
+
+const totalOrders = orders?.length || 0;
+const pendingOrders = orders?.filter(o => o.status === "paid")?.length || 0;
+
+const totalRevenue = orders?.reduce((sum, order) => {
+  const items = order.order_items || [];
+  const vendorAmount = items.reduce((itemSum: number, item: any) => 
+    itemSum + (item.vendor_amount || 0), 0
+  );
+  return sum + vendorAmount;
+}, 0) || 0;
   
   const pendingCount = myProducts.filter(p => p.approval_status === 'pending').length;
   const approvedCount = myProducts.filter(p => p.approval_status === 'approved').length;
@@ -59,7 +76,27 @@ export default async function VendedorDashboard() {
           </div>
           <div className="text-3xl font-bold text-red-700">{rejectedCount}</div>
         </div>
+        <div className="bg-gradient-to-br from-blue-500 to-cyan-500 p-6 rounded-2xl text-white">
+  <div className="flex items-center gap-3 mb-2">
+    <ShoppingBag className="w-5 h-5" />
+    <span className="text-sm text-blue-100">Ventas</span>
+  </div>
+  <div className="text-3xl font-bold">{totalOrders}</div>
+  <p className="text-sm text-blue-100 mt-1">{pendingOrders} pendientes</p>
+</div>
+
+<div className="bg-gradient-to-br from-green-500 to-emerald-500 p-6 rounded-2xl text-white">
+  <div className="flex items-center gap-3 mb-2">
+    <DollarSign className="w-5 h-5" />
+    <span className="text-sm text-green-100">Ingresos</span>
+  </div>
+  <div className="text-3xl font-bold">{formatPrice(totalRevenue)}</div>
+  <p className="text-sm text-green-100 mt-1">Después de comisión</p>
+</div>
       </div>
+
+      {/* Agregar después de las 4 cards de productos */}
+
 
       {/* Products list */}
       {myProducts.length > 0 ? (

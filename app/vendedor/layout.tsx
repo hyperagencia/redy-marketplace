@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Package, Plus, TrendingUp, Settings, LogOut } from "lucide-react";
+import LogoutButton from "@/components/vendedor/LogoutButton";
 
 export default async function VendedorLayout({
   children,
@@ -89,15 +90,7 @@ export default async function VendedorLayout({
             </div>
           </div>
           
-          <form action="/api/auth/logout" method="POST">
-            <button
-              type="submit"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all"
-            >
-              <LogOut className="w-5 h-5" />
-              <span className="font-medium">Cerrar sesión</span>
-            </button>
-          </form>
+          <LogoutButton />
         </div>
       </aside>
 

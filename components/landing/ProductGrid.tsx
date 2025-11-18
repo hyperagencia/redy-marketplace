@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { formatPrice } from "@/lib/utils";
 import { Heart, ShoppingCart } from "lucide-react";
+import Link from "next/link"; // Agregar al inicio
 
 interface Product {
   id: string;
@@ -49,8 +50,8 @@ export default function ProductGrid({ products }: ProductGridProps) {
         {/* Product Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {approvedProducts.map((product, index) => (
-            <motion.div
-              key={product.id}
+            <Link href={`/productos/${product.id}`} key={product.id}>
+  <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -94,7 +95,7 @@ export default function ProductGrid({ products }: ProductGridProps) {
                   </button>
                 </div>
               </div>
-            </motion.div>
+            </motion.div> </Link>
           ))}
         </div>
 

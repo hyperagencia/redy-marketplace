@@ -6,8 +6,9 @@ import {
   Eye,
   Filter,
   Search,
-  Package  // <- AGREGAR ESTA LÍNEA
+  Package
 } from "lucide-react";
+import Link from "next/link";
 
 export default async function ProductosPage() {
   // Obtener todos los productos
@@ -54,9 +55,6 @@ export default async function ProductosPage() {
                     Producto
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">
-                    Categoría
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">
                     Precio
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">
@@ -65,6 +63,9 @@ export default async function ProductosPage() {
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">
                     Fecha
                   </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">
+                    Acciones
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -72,6 +73,7 @@ export default async function ProductosPage() {
                   <tr key={product.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={product.images?.[0] || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100'}
                           alt={product.name}
@@ -79,12 +81,9 @@ export default async function ProductosPage() {
                         />
                         <div>
                           <div className="font-semibold">{product.name}</div>
-                          <div className="text-sm text-gray-500">{product.condition}</div>
+                          <div className="text-sm text-gray-500 capitalize">{product.condition}</div>
                         </div>
                       </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="text-sm">{product.category?.name || 'Sin categoría'}</span>
                     </td>
                     <td className="px-6 py-4">
                       <span className="font-semibold">{formatPrice(product.price)}</span>
@@ -110,6 +109,15 @@ export default async function ProductosPage() {
                       <span className="text-sm text-gray-500">
                         {formatDate(product.created_at)}
                       </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <Link
+                        href={`/admin/productos/${product.id}`}
+                        className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
+                      >
+                        <Eye className="w-4 h-4" />
+                        Ver detalle
+                      </Link>
                     </td>
                   </tr>
                 ))}

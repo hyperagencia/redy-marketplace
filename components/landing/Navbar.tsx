@@ -4,9 +4,13 @@ import { useState } from "react";
 import Link from "next/link";
 import { Menu, X, Search, Heart, ShoppingCart, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useCart } from "@/lib/context/CartContext";
+
 
 export default function Navbar() {
+  const { itemCount } = useCart();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  
 
   return (
     <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-md z-50 border-b border-gray-200">
@@ -15,7 +19,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group">
             <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-xl flex items-center justify-center font-bold text-xl text-white group-hover:scale-105 transition-transform">
-              R
+              REDY
             </div>
             <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
               REDY
@@ -38,6 +42,7 @@ export default function Navbar() {
             </Link>
           </div>
 
+
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-4">
             <button className="p-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all">
@@ -49,12 +54,17 @@ export default function Navbar() {
                 3
               </span>
             </button>
-            <button className="p-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all relative">
-              <ShoppingCart className="w-5 h-5" />
-              <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-                2
-              </span>
-            </button>
+            <Link
+              href="/carrito"
+              className="relative p-2 hover:bg-gray-100 rounded-xl transition-colors"
+            >
+              <ShoppingCart className="w-6 h-6 text-gray-700" />
+              {itemCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                  {itemCount}
+                </span>
+              )}
+            </Link>
             <Link 
               href="/admin"
               className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-all"

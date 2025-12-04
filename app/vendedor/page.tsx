@@ -1,8 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
 import { getProducts } from "@/lib/supabase/database";
 import { formatPrice, formatDate } from "@/lib/utils";
-import { Package, Clock, CheckCircle, XCircle, Plus, DollarSign, ShoppingBag } from "lucide-react"; // <- Agregar Plus aquí
+import { Package, Clock, CheckCircle, XCircle, Plus, DollarSign, ShoppingBag } from "lucide-react";
 import Link from "next/link";
+import RestockButton from "@/components/vendedor/RestockButton";
 
 export default async function VendedorDashboard() {
   const supabase = await createClient();
@@ -112,10 +113,16 @@ const totalRevenue = orders?.reduce((sum, order) => {
                     Precio
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">
+                    Stock
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">
                     Estado
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">
                     Fecha
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">
+                    Acciones
                   </th>
                 </tr>
               </thead>
@@ -139,6 +146,17 @@ const totalRevenue = orders?.reduce((sum, order) => {
                       <span className="font-semibold">{formatPrice(product.price)}</span>
                     </td>
                     <td className="px-6 py-4">
+                      {product.stock > 0 ? (
+                        <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                          Disponible ({product.stock})
+                        </span>
+                      ) : (
+                        <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
+                          Agotado
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
                       {product.approval_status === 'pending' && (
                         <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium">
                           Pendiente
@@ -159,6 +177,13 @@ const totalRevenue = orders?.reduce((sum, order) => {
                       <span className="text-sm text-gray-500">
                         {formatDate(product.created_at)}
                       </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <RestockButton
+                        productId={product.id}
+                        currentStock={product.stock || 0}
+                        productName={product.name}
+                      />
                     </td>
                   </tr>
                 ))}

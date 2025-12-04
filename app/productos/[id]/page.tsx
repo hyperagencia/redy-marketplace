@@ -31,7 +31,6 @@ export default async function ProductDetailPage({
     .select("*")
     .eq("id", id)
     .eq("approval_status", "approved") // Solo productos aprobados
-    .eq("available", true) // Solo disponibles
     .single();
 
   if (error || !product) {
@@ -95,10 +94,19 @@ export default async function ProductDetailPage({
               <div className="sticky top-24 space-y-6">
                 {/* Precio y título */}
                 <div>
-                  <div className="flex items-center gap-3 mb-3">
+                  <div className="flex items-center gap-3 mb-3 flex-wrap">
                     <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium capitalize">
                       {product.condition}
                     </span>
+                    {product.stock > 0 ? (
+                      <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+                        Disponible
+                      </span>
+                    ) : (
+                      <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
+                        Agotado
+                      </span>
+                    )}
                     <span className="text-sm text-gray-500">•</span>
                     <span className="text-sm text-gray-600 flex items-center gap-1">
                       {category?.icon} {category?.name}

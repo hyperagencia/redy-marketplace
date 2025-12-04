@@ -15,22 +15,53 @@ export default function CarritoPage() {
   const supabase = createClient();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [outOfStockItems, setOutOfStockItems] = useState<string[]>([]);
 
   useEffect(() => {
     async function checkAuth() {
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (!user) {
         // Redirigir si no está autenticado
         router.push("/login?redirect=/carrito");
         return;
       }
-      
+
       setUser(user);
       setLoading(false);
     }
     checkAuth();
   }, [router, supabase]);
+
+  // Verificar stock de productos en el carrito
+  useEffect(() => {
+    async function checkStock() {
+      if (items.length === 0) return;
+
+      const stockChecks = await Promise.all(
+        items.map(async (item) => {
+          const { data: product } = await supabase
+            .from('products')
+            .select('stock')
+            .eq('id', item.product_id)
+            .single();
+
+          return {
+            product_id: item.product_id,
+            hasStock: product && product.stock > 0
+          };
+        })
+      );
+
+      const outOfStock = stockChecks
+        .filter(check => !check.hasStock)
+        .map(check => check.product_id);
+
+      setOutOfStockItems(outOfStock);
+    }
+
+    checkStock();
+  }, [items, supabase]);
 
   if (loading) {
     return (
@@ -91,44 +122,65 @@ export default function CarritoPage() {
                   </p>
                 </div>
 
-                {/* Productos */}
-                {items.map((item) => (
-                  <div
-                    key={item.product_id}
-                    className="bg-white rounded-xl border border-gray-200 p-4 flex gap-4"
-                  >
-                    <Link href={`/productos/${item.product_id}`}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="w-24 h-24 rounded-lg object-cover"
-                      />
-                    </Link>
-                    
-                    <div className="flex-1">
-                      <Link
-                        href={`/productos/${item.product_id}`}
-                        className="font-semibold text-lg hover:text-blue-600 block mb-1"
-                      >
-                        {item.name}
-                      </Link>
-                      <p className="text-sm text-gray-600 capitalize mb-2">
-                        Estado: {item.condition}
-                      </p>
-                      <p className="text-xl font-bold text-gray-900">
-                        {formatPrice(item.price)}
-                      </p>
-                    </div>
-
-                    <button
-                      onClick={() => removeItem(item.product_id)}
-                      className="p-2 hover:bg-red-50 rounded-lg transition-colors h-fit"
-                    >
-                      <Trash2 className="w-5 h-5 text-red-600" />
-                    </button>
+                {/* Advertencia de productos sin stock */}
+                {outOfStockItems.length > 0 && (
+                  <div className="bg-orange-50 border border-orange-200 rounded-xl p-4">
+                    <p className="text-sm text-orange-900 font-semibold mb-1">
+                      ⚠️ Algunos productos ya no están disponibles
+                    </p>
+                    <p className="text-xs text-orange-700">
+                      Por favor elimina los productos agotados antes de continuar con tu compra.
+                    </p>
                   </div>
-                ))}
+                )}
+
+                {/* Productos */}
+                {items.map((item) => {
+                  const isOutOfStock = outOfStockItems.includes(item.product_id);
+
+                  return (
+                    <div
+                      key={item.product_id}
+                      className={`bg-white rounded-xl border p-4 flex gap-4 ${isOutOfStock ? 'border-orange-300 bg-orange-50/30' : 'border-gray-200'}`}
+                    >
+                      <Link href={`/productos/${item.product_id}`}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className={`w-24 h-24 rounded-lg object-cover ${isOutOfStock ? 'grayscale opacity-60' : ''}`}
+                        />
+                      </Link>
+
+                      <div className="flex-1">
+                        <Link
+                          href={`/productos/${item.product_id}`}
+                          className="font-semibold text-lg hover:text-blue-600 block mb-1"
+                        >
+                          {item.name}
+                        </Link>
+                        {isOutOfStock && (
+                          <span className="inline-block px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs font-medium mb-2">
+                            AGOTADO
+                          </span>
+                        )}
+                        <p className="text-sm text-gray-600 capitalize mb-2">
+                          Estado: {item.condition}
+                        </p>
+                        <p className="text-xl font-bold text-gray-900">
+                          {formatPrice(item.price)}
+                        </p>
+                      </div>
+
+                      <button
+                        onClick={() => removeItem(item.product_id)}
+                        className="p-2 hover:bg-red-50 rounded-lg transition-colors h-fit"
+                      >
+                        <Trash2 className="w-5 h-5 text-red-600" />
+                      </button>
+                    </div>
+                  );
+                })}
 
                 {/* Botón limpiar carrito */}
                 <button

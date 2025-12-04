@@ -100,6 +100,7 @@ export default function NuevoProducto() {
           condition: formData.condition,
           images: formData.images,
           approval_status: "pending",
+          stock: 1,
         });
 
       if (error) throw error;

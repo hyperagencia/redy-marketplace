@@ -13,6 +13,7 @@ interface Product {
   condition: string;
   images: string[];
   category_id: string;
+  stock: number;
 }
 
 interface ProductGridProps {
@@ -64,9 +65,18 @@ export default function ProductGrid({ products }: ProductGridProps) {
                   src={product.images?.[0] || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500'}
                   alt={product.name}
                   fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  className={`object-cover group-hover:scale-105 transition-transform duration-300 ${product.stock <= 0 ? 'grayscale opacity-60' : ''}`}
                 />
-                
+
+                {/* Out of Stock Overlay */}
+                {product.stock <= 0 && (
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                    <div className="bg-gray-900/90 text-white px-6 py-3 rounded-xl font-bold text-lg">
+                      AGOTADO
+                    </div>
+                  </div>
+                )}
+
                 {/* Condition Badge */}
                 <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium capitalize">
                   {product.condition}

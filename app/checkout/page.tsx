@@ -138,6 +138,29 @@ export default function CheckoutPage() {
       throw new Error('No se recibieron datos de pago');
     }
 
+    // Validar stock de todos los productos antes de procesar
+    const stockValidation = await Promise.all(
+      items.map(async (item) => {
+        const { data: product } = await supabase
+          .from('products')
+          .select('stock, name')
+          .eq('id', item.product_id)
+          .single();
+
+        return {
+          product_id: item.product_id,
+          name: product?.name || item.name,
+          hasStock: product && product.stock > 0
+        };
+      })
+    );
+
+    const outOfStockProducts = stockValidation.filter(p => !p.hasStock);
+    if (outOfStockProducts.length > 0) {
+      const productNames = outOfStockProducts.map(p => p.name).join(', ');
+      throw new Error(`Los siguientes productos ya no están disponibles: ${productNames}. Por favor remuévelos del carrito e intenta de nuevo.`);
+    }
+
     // Calcular subtotal y comisión (15% de REDY)
 const subtotal = total;
 const commissionTotal = Math.round(total * 0.15);
@@ -213,14 +236,24 @@ if (itemsError) throw itemsError;
     if (result.success) {
       console.log('✅ Payment successful!');
 
-      // Marcar productos como no disponibles
+      // Decrementar stock de productos
       await Promise.all(
-        items.map(item =>
-          supabase
+        items.map(async (item) => {
+          // Obtener stock actual
+          const { data: currentProduct } = await supabase
             .from('products')
-            .update({ available: false })
+            .select('stock')
             .eq('id', item.product_id)
-        )
+            .single();
+
+          if (currentProduct && currentProduct.stock > 0) {
+            // Decrementar stock
+            await supabase
+              .from('products')
+              .update({ stock: currentProduct.stock - 1 })
+              .eq('id', item.product_id);
+          }
+        })
       );
 
       // Limpiar carrito

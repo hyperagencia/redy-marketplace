@@ -21,9 +21,16 @@ export default function AddToCartButton({ product, vendor }: AddToCartButtonProp
   const handleAddToCart = async () => {
     setLoading(true);
 
+    // Verificar stock disponible
+    if (!product.stock || product.stock <= 0) {
+      alert("Este producto ya no está disponible");
+      setLoading(false);
+      return;
+    }
+
     // Verificar si el usuario está autenticado
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
       // Redirigir al login
       router.push("/login?redirect=/productos/" + product.id);
@@ -61,15 +68,17 @@ export default function AddToCartButton({ product, vendor }: AddToCartButtonProp
     await handleAddToCart();
   };
 
+  const isOutOfStock = !product.stock || product.stock <= 0;
+
   return (
     <>
       <button
         onClick={handleAddToCart}
-        disabled={loading}
-        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20 disabled:opacity-50"
+        disabled={loading || isOutOfStock}
+        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400"
       >
         <ShoppingCart className="w-5 h-5" />
-        {loading ? "Agregando..." : "Agregar al carrito"}
+        {isOutOfStock ? "Producto agotado" : loading ? "Agregando..." : "Agregar al carrito"}
       </button>
 
       {/* Modal de advertencia - Vendedor diferente */}

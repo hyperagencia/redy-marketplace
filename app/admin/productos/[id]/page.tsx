@@ -4,6 +4,7 @@ import { formatPrice, formatDate } from "@/lib/utils";
 import { ArrowLeft, Check, X, User, Package, Calendar, Tag } from "lucide-react";
 import Link from "next/link";
 import ApprovalButtons from "@/components/admin/ApprovalButtons";
+import StockEditor from "@/components/admin/StockEditor";
 
 export default async function ProductDetailPage({
   params,
@@ -159,6 +160,9 @@ export default async function ProductDetailPage({
               </span>
             )}
           </div>
+
+          {/* Stock */}
+          <StockEditor productId={product.id} currentStock={product.stock || 0} />
 
           {/* Botones */}
           {product.approval_status === "pending" && user && (

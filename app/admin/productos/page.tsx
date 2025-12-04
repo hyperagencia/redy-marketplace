@@ -58,6 +58,9 @@ export default async function ProductosPage() {
                     Precio
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">
+                    Stock
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">
                     Estado
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">
@@ -87,6 +90,17 @@ export default async function ProductosPage() {
                     </td>
                     <td className="px-6 py-4">
                       <span className="font-semibold">{formatPrice(product.price)}</span>
+                    </td>
+                    <td className="px-6 py-4">
+                      {product.stock > 0 ? (
+                        <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                          {product.stock}
+                        </span>
+                      ) : (
+                        <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
+                          0
+                        </span>
+                      )}
                     </td>
                     <td className="px-6 py-4">
                       {product.approval_status === 'pending' && (

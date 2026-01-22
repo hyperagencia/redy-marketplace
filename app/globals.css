@@ -1,21 +1,74 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f4efe9;
+  --foreground: #001620;
 }
 
 @theme inline {
+  /* Base Colors */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Primary (Orange Energy) - Para acciones principales y CTA */
+  --color-primary-50: #fff5f2;
+  --color-primary-100: #ffe8e0;
+  --color-primary-200: #ffd4c7;
+  --color-primary-300: #ffb499;
+  --color-primary-400: #ff8866;
+  --color-primary-500: #fc2906;
+  --color-primary-600: #d62305;
+  --color-primary-700: #b01e04;
+  --color-primary-800: #8a1803;
+  --color-primary-900: #641202;
+  --color-primary-950: #3e0b01;
+
+  /* Navy (Azul Oscuro) - Para textos oscuros y contrastes */
+  --color-navy-50: #e6f0f5;
+  --color-navy-100: #cce0eb;
+  --color-navy-200: #99c1d7;
+  --color-navy-300: #66a2c3;
+  --color-navy-400: #3383af;
+  --color-navy-500: #00649b;
+  --color-navy-600: #004d76;
+  --color-navy-700: #003651;
+  --color-navy-800: #002a3d;
+  --color-navy-900: #001620;
+  --color-navy-950: #000a0f;
+
+  /* Accent (Yellow Sport) - Para highlights y elementos de énfasis */
+  --color-accent-50: #fefff0;
+  --color-accent-100: #fdffe0;
+  --color-accent-200: #fbffc2;
+  --color-accent-300: #f8ffa3;
+  --color-accent-400: #e8ff66;
+  --color-accent-500: #cdfe00;
+  --color-accent-600: #b3e000;
+  --color-accent-700: #99c200;
+  --color-accent-800: #7fa400;
+  --color-accent-900: #658600;
+  --color-accent-950: #4b6800;
+
+  /* Neutral (Clean White) - Para fondos claros y espacios */
+  --color-neutral-50: #ffffff;
+  --color-neutral-100: #f9f6f2;
+  --color-neutral-200: #f4efe9;
+  --color-neutral-300: #ede4d9;
+  --color-neutral-400: #e5d9c9;
+  --color-neutral-500: #d9c9b3;
+  --color-neutral-600: #c0a58f;
+  --color-neutral-700: #a6826b;
+  --color-neutral-800: #8d6047;
+  --color-neutral-900: #744023;
+  --color-neutral-950: #5b2000;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #001620;
+    --foreground: #f4efe9;
   }
 }
 

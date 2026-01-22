@@ -17,7 +17,7 @@ interface CategoriesProps {
 
 export default function Categories({ categories, productCounts = {} }: CategoriesProps) {
   return (
-    <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
+    <section className="py-20 bg-gradient-to-br from-gray-50 to-neutral-200">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="text-center mb-16">
@@ -50,13 +50,13 @@ export default function Categories({ categories, productCounts = {} }: Categorie
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
               whileHover={{ scale: 1.05 }}
-              className="group bg-white p-8 rounded-2xl border border-gray-200 hover:border-blue-500 hover:shadow-lg transition-all"
+              className="group bg-white p-8 rounded-2xl border border-gray-200 hover:border-primary-500 hover:shadow-lg transition-all"
             >
               {/* Icon */}
               <div className="text-5xl mb-4">{category.icon}</div>
-              
+
               {/* Name */}
-              <div className="font-semibold text-lg mb-2 group-hover:text-blue-600 transition-colors">
+              <div className="font-semibold text-lg mb-2 group-hover:text-primary-500 transition-colors">
                 {category.name}
               </div>
               

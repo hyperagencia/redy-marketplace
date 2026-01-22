@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { 
   LayoutDashboard, 
@@ -69,8 +70,14 @@ export default function Sidebar() {
       {/* Logo */}
       <div className="p-6 border-b border-gray-800">
         <Link href="/admin" className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center font-bold text-xl">
-            R
+          <div className="w-10 h-10 bg-primary-500 rounded-xl flex items-center justify-center p-1.5">
+            <Image
+              src="/assets/images/redy-icon.svg"
+              alt="Redy Icon"
+              width={40}
+              height={40}
+              className="w-full h-full"
+            />
           </div>
           <div>
             <div className="font-bold text-lg">REDY</div>
@@ -91,8 +98,8 @@ export default function Sidebar() {
               href={item.href}
               className={cn(
                 "flex items-center justify-between gap-3 px-4 py-3 rounded-xl transition-all group",
-                isActive 
-                  ? "bg-blue-600 text-white" 
+                isActive
+                  ? "bg-primary-500 text-white"
                   : "text-gray-400 hover:bg-gray-800 hover:text-white"
               )}
             >
@@ -112,7 +119,7 @@ export default function Sidebar() {
       {/* User Section */}
       <div className="p-4 border-t border-gray-800">
         <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-800 mb-2">
-          <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center font-bold text-sm">
+          <div className="w-10 h-10 bg-primary-500 rounded-full flex items-center justify-center font-bold text-sm">
             {user?.email?.[0].toUpperCase() || 'A'}
           </div>
           <div className="flex-1 min-w-0">

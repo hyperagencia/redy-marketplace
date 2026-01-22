@@ -91,7 +91,7 @@ export default function ProductGrid({ products }: ProductGridProps) {
               {/* Content */}
               <div className="p-6">
                 {/* Name */}
-                <h3 className="text-lg font-semibold mb-4 group-hover:text-blue-600 transition-colors line-clamp-2">
+                <h3 className="text-lg font-semibold mb-4 group-hover:text-primary-500 transition-colors line-clamp-2">
                   {product.name}
                 </h3>
 
@@ -100,7 +100,7 @@ export default function ProductGrid({ products }: ProductGridProps) {
                   <div className="text-2xl font-bold text-gray-900">
                     {formatPrice(product.price)}
                   </div>
-                  <button className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-xl transition-colors">
+                  <button className="bg-primary-500 hover:bg-primary-600 text-white p-3 rounded-xl transition-colors">
                     <ShoppingCart className="w-5 h-5" />
                   </button>
                 </div>

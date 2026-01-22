@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Menu, X, Search, Heart, ShoppingCart, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/lib/context/CartContext";
@@ -17,27 +18,29 @@ export default function Navbar() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-xl flex items-center justify-center font-bold text-xl text-white group-hover:scale-105 transition-transform">
-              REDY
-            </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-              REDY
-            </span>
+          <Link href="/" className="flex items-center group">
+            <Image
+              src="/assets/images/redy-logo.svg"
+              alt="Redy Logo"
+              width={120}
+              height={40}
+              className="group-hover:scale-105 transition-transform"
+              priority
+            />
           </Link>
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center gap-8">
-            <Link href="#productos" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+            <Link href="#productos" className="text-gray-700 hover:text-primary-500 font-medium transition-colors">
               Productos
             </Link>
-            <Link href="#categorias" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+            <Link href="#categorias" className="text-gray-700 hover:text-primary-500 font-medium transition-colors">
               Categorías
             </Link>
-            <Link href="#vender" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+            <Link href="#vender" className="text-gray-700 hover:text-primary-500 font-medium transition-colors">
               Vender
             </Link>
-            <Link href="#nosotros" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+            <Link href="#nosotros" className="text-gray-700 hover:text-primary-500 font-medium transition-colors">
               Nosotros
             </Link>
           </div>
@@ -45,10 +48,10 @@ export default function Navbar() {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-4">
-            <button className="p-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all">
+            <button className="p-2 text-gray-700 hover:text-primary-500 hover:bg-primary-50 rounded-lg transition-all">
               <Search className="w-5 h-5" />
             </button>
-            <button className="p-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all relative">
+            <button className="p-2 text-gray-700 hover:text-primary-500 hover:bg-primary-50 rounded-lg transition-all relative">
               <Heart className="w-5 h-5" />
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
                 3
@@ -60,14 +63,14 @@ export default function Navbar() {
             >
               <ShoppingCart className="w-6 h-6 text-gray-700" />
               {itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-primary-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
                   {itemCount}
                 </span>
               )}
             </Link>
             <Link 
               href="/admin"
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-all"
+              className="flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg font-medium transition-all"
             >
               <User className="w-5 h-5" />
               Ingresar
@@ -96,28 +99,28 @@ export default function Navbar() {
             <div className="container mx-auto px-4 py-4 space-y-2">
               <Link 
                 href="#productos" 
-                className="block px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors font-medium"
+                className="block px-4 py-3 text-gray-700 hover:bg-primary-50 hover:text-blue-600 rounded-lg transition-colors font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Productos
               </Link>
               <Link 
                 href="#categorias" 
-                className="block px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors font-medium"
+                className="block px-4 py-3 text-gray-700 hover:bg-primary-50 hover:text-blue-600 rounded-lg transition-colors font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Categorías
               </Link>
               <Link 
                 href="#vender" 
-                className="block px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors font-medium"
+                className="block px-4 py-3 text-gray-700 hover:bg-primary-50 hover:text-blue-600 rounded-lg transition-colors font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Vender
               </Link>
               <Link 
                 href="#nosotros" 
-                className="block px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors font-medium"
+                className="block px-4 py-3 text-gray-700 hover:bg-primary-50 hover:text-blue-600 rounded-lg transition-colors font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Nosotros
@@ -125,7 +128,7 @@ export default function Navbar() {
               <div className="pt-4 border-t border-gray-200 space-y-2">
                 <Link 
   href="/login"
-  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-all"
+  className="flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg font-medium transition-all"
 >
   <User className="w-5 h-5" />
   Ingresar

@@ -80,7 +80,7 @@ export default function Sidebar() {
             />
           </div>
           <div>
-            <div className="font-bold text-lg">REDY</div>
+            <div className="font-bold text-lg">Redy</div>
             <div className="text-xs text-gray-400">Admin Panel</div>
           </div>
         </Link>

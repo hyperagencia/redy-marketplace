@@ -12,10 +12,9 @@ import {
   AlertCircle
 } from "lucide-react";
 import Link from "next/link";
-import Navbar from "@/components/landing/Navbar";
-import ProductGallery from "@/components/product/ProductGallery";
-import AddToCartButton from "@/components/product/AddToCartButton";
-import SellerCard from "@/components/product/SellerCard";
+import ProductGallery from "@/components/marketplace/product/ProductGallery";
+import AddToCartButton from "@/components/marketplace/product/AddToCartButton";
+import SellerCard from "@/components/marketplace/product/SellerCard";
 
 export default async function ProductDetailPage({
   params,
@@ -62,10 +61,7 @@ export default async function ProductDetailPage({
     .limit(3);
 
   return (
-    <>
-      <Navbar />
-      
-      <main className="min-h-screen bg-gray-50 pt-20">
+    <main className="min-h-screen bg-gray-50 pt-20">
         {/* Breadcrumbs */}
         <div className="bg-white border-b border-gray-200">
           <div className="container mx-auto px-4 py-4">
@@ -141,7 +137,7 @@ export default async function ProductDetailPage({
                 </div>
 
                 {/* Banner de marketplace */}
-                <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-2xl p-4">
+                <div className="bg-linear-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-2xl p-4">
                   <div className="flex items-start gap-3">
                     <Shield className="w-5 h-5 text-blue-600 mt-0.5" />
                     <div>
@@ -244,6 +240,5 @@ export default async function ProductDetailPage({
           )}
         </div>
       </main>
-    </>
   );
 }

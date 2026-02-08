@@ -7,7 +7,6 @@ import { formatPrice } from "@/lib/utils";
 import { Trash2, ShoppingBag, ArrowRight, Lock } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import Navbar from "@/components/landing/Navbar";
 
 export default function CarritoPage() {
   const { items, removeItem, clearCart, total, vendorName } = useCart();
@@ -65,15 +64,12 @@ export default function CarritoPage() {
 
   if (loading) {
     return (
-      <>
-        <Navbar />
-        <div className="min-h-screen bg-gray-50 pt-20 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Cargando...</p>
-          </div>
+      <div className="min-h-screen bg-gray-50 pt-20 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Cargando...</p>
         </div>
-      </>
+      </div>
     );
   }
 
@@ -83,10 +79,7 @@ export default function CarritoPage() {
   }
 
   return (
-    <>
-      <Navbar />
-      
-      <main className="min-h-screen bg-gray-50 pt-20">
+    <main className="min-h-screen bg-gray-50 pt-20">
         <div className="container mx-auto px-4 py-8 max-w-6xl">
           <h1 className="text-3xl font-bold mb-8">Mi Carrito</h1>
 
@@ -236,6 +229,5 @@ export default function CarritoPage() {
           )}
         </div>
       </main>
-    </>
   );
 }

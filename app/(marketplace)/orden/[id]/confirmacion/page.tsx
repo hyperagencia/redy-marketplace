@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { formatPrice, formatDate } from "@/lib/utils";
 import { CheckCircle, Package, MapPin, User, Calendar } from "lucide-react";
 import Link from "next/link";
-import Navbar from "@/components/landing/Navbar";
 
 export default async function ConfirmacionPage({
   params,
@@ -47,10 +46,7 @@ export default async function ConfirmacionPage({
     .eq("order_id", id);
 
   return (
-    <>
-      <Navbar />
-      
-      <main className="min-h-screen bg-gray-50 pt-20">
+    <main className="min-h-screen bg-gray-50 pt-20">
         <div className="container mx-auto px-4 py-8 max-w-4xl">
           {/* Success header */}
           <div className="bg-white rounded-2xl border border-gray-200 p-8 text-center mb-8">
@@ -180,6 +176,5 @@ export default async function ConfirmacionPage({
           </div>
         </div>
       </main>
-    </>
   );
 }

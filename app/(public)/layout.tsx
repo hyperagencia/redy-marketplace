@@ -1,3 +1,11 @@
+import type { Metadata } from 'next'
+import LandingNavbar from '@/components/landing/LandingNavbar'
+
+export const metadata: Metadata = {
+  title: 'REDY - Marketplace de Equipamiento Deportivo',
+  description: 'Compra y vende equipamiento deportivo usado de calidad',
+}
+
 export default function PublicLayout({
   children,
 }: {
@@ -5,7 +13,7 @@ export default function PublicLayout({
 }) {
   return (
     <>
-      {/* TODO: Agregar Navbar de landing después */}
+      <LandingNavbar />
       {children}
       {/* TODO: Agregar Footer después */}
     </>

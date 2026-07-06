@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/context/CartContext";
 import { formatPrice } from "@/lib/utils";
 import { Trash2, ShoppingBag, ArrowRight, Lock } from "lucide-react";
@@ -10,7 +9,6 @@ import { createClient } from "@/lib/supabase/client";
 
 export default function CarritoPage() {
   const { items, removeItem, clearCart, total, vendorName } = useCart();
-  const router = useRouter();
   const supabase = createClient();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -18,19 +16,13 @@ export default function CarritoPage() {
 
   useEffect(() => {
     async function checkAuth() {
+      // Se puede ver el carrito sin sesión; la cuenta se pide al pagar.
       const { data: { user } } = await supabase.auth.getUser();
-
-      if (!user) {
-        // Redirigir si no está autenticado
-        router.push("/login?redirect=/carrito");
-        return;
-      }
-
       setUser(user);
       setLoading(false);
     }
     checkAuth();
-  }, [router, supabase]);
+  }, [supabase]);
 
   // Verificar stock de productos en el carrito
   useEffect(() => {
@@ -73,10 +65,7 @@ export default function CarritoPage() {
     );
   }
 
-  // Si no hay usuario, no renderizar nada (ya está redirigiendo)
-  if (!user) {
-    return null;
-  }
+  const checkoutHref = user ? "/checkout" : "/login?redirect=/checkout";
 
   return (
     <main className="min-h-screen bg-gray-50 pt-20">
@@ -207,12 +196,17 @@ export default function CarritoPage() {
                   </div>
 
                   <Link
-                    href="/checkout"
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 mb-4"
+                    href={checkoutHref}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 mb-2"
                   >
                     Continuar con la compra
                     <ArrowRight className="w-5 h-5" />
                   </Link>
+                  {!user && (
+                    <p className="text-xs text-gray-500 text-center mb-4">
+                      Crea tu cuenta o inicia sesión para completar la compra.
+                    </p>
+                  )}
 
                   <div className="bg-gray-50 rounded-xl p-4">
                     <div className="flex items-center gap-2 text-sm text-gray-700 mb-2">

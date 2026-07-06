@@ -4,7 +4,8 @@ import { ShoppingCart, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import { useCart } from "@/lib/context/CartContext";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { usePostHog } from "posthog-js/react";
+import { AnalyticsEvent } from "@/lib/analytics/events";
 
 interface AddToCartButtonProps {
   product: any;
@@ -16,7 +17,7 @@ export default function AddToCartButton({ product, vendor }: AddToCartButtonProp
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const supabase = createClient();
+  const posthog = usePostHog();
 
   const handleAddToCart = async () => {
     setLoading(true);
@@ -28,15 +29,7 @@ export default function AddToCartButton({ product, vendor }: AddToCartButtonProp
       return;
     }
 
-    // Verificar si el usuario está autenticado
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
-      // Redirigir al login
-      router.push("/login?redirect=/productos/" + product.id);
-      return;
-    }
-
+    // Sin login: se puede armar el carrito. La cuenta se pide en el checkout.
     const cartItem = {
       product_id: product.id,
       name: product.name,
@@ -53,6 +46,12 @@ export default function AddToCartButton({ product, vendor }: AddToCartButtonProp
       // Mostrar modal de advertencia
       setShowModal(true);
     } else {
+      posthog?.capture(AnalyticsEvent.AddToCart, {
+        product_id: product.id,
+        name: product.name,
+        price: product.price,
+        vendor_id: product.vendor_id,
+      });
       // Mostrar feedback y redirigir al carrito
       setTimeout(() => {
         router.push("/carrito");

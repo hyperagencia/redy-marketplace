@@ -1,17 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Menu, X, Search, Heart, ShoppingCart, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/lib/context/CartContext";
+import { createClient } from "@/lib/supabase/client";
 
 
 export default function Navbar() {
   const { itemCount } = useCart();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  
+  const [isAuthed, setIsAuthed] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => setIsAuthed(!!user));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) =>
+      setIsAuthed(!!session?.user)
+    );
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+
 
   return (
     <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-md z-50 border-b border-gray-200">
@@ -37,7 +49,7 @@ export default function Navbar() {
             <Link href="#categorias" className="text-gray-700 hover:text-primary-500 font-medium transition-colors">
               Categorías
             </Link>
-            <Link href="#vender" className="text-gray-700 hover:text-primary-500 font-medium transition-colors">
+            <Link href="/registro/vendedor" className="text-gray-700 hover:text-primary-500 font-medium transition-colors">
               Vender
             </Link>
             <Link href="#nosotros" className="text-gray-700 hover:text-primary-500 font-medium transition-colors">
@@ -68,13 +80,24 @@ export default function Navbar() {
                 </span>
               )}
             </Link>
-            <Link 
-              href="/admin"
-              className="flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg font-medium transition-all"
-            >
-              <User className="w-5 h-5" />
-              Ingresar
-            </Link>
+            {isAuthed ? (
+              <Link
+                href="/cuenta"
+                title="Mi cuenta"
+                className="flex items-center justify-center w-10 h-10 bg-primary-500 hover:bg-primary-600 text-white rounded-full transition-all"
+              >
+                <User className="w-5 h-5" />
+              </Link>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Link href="/login" className="px-4 py-2 text-gray-700 hover:text-primary-500 font-medium transition-colors">
+                  Ingresar
+                </Link>
+                <Link href="/registro" className="flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg font-medium transition-all">
+                  Crear cuenta
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -111,8 +134,8 @@ export default function Navbar() {
               >
                 Categorías
               </Link>
-              <Link 
-                href="#vender" 
+              <Link
+                href="/registro/vendedor"
                 className="block px-4 py-3 text-gray-700 hover:bg-primary-50 hover:text-blue-600 rounded-lg transition-colors font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
@@ -126,13 +149,20 @@ export default function Navbar() {
                 Nosotros
               </Link>
               <div className="pt-4 border-t border-gray-200 space-y-2">
-                <Link 
-  href="/login"
-  className="flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg font-medium transition-all"
->
-  <User className="w-5 h-5" />
-  Ingresar
-</Link>
+                {isAuthed ? (
+                  <Link href="/cuenta" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg font-medium transition-all">
+                    <User className="w-5 h-5" /> Mi cuenta
+                  </Link>
+                ) : (
+                  <>
+                    <Link href="/login" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-lg font-medium">
+                      <User className="w-5 h-5" /> Ingresar
+                    </Link>
+                    <Link href="/registro" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg font-medium transition-all">
+                      Crear cuenta
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </motion.div>

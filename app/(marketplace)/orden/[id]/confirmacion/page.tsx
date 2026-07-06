@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { formatPrice, formatDate } from "@/lib/utils";
 import { CheckCircle, Package, MapPin, User, Calendar } from "lucide-react";
 import Link from "next/link";
+import ConfirmReceiptButton from "@/components/marketplace/ConfirmReceiptButton";
 
 export default async function ConfirmacionPage({
   params,
@@ -157,6 +158,11 @@ export default async function ConfirmacionPage({
               <li>• Una vez recibido el producto, confirma la recepción en tu cuenta</li>
               <li>• Si hay algún problema, contáctanos inmediatamente</li>
             </ul>
+          </div>
+
+          {/* Confirmar recepción (libera el pago al vendedor) */}
+          <div className="mb-8">
+            <ConfirmReceiptButton orderId={order.id} status={order.status} />
           </div>
 
           {/* Botones de acción */}

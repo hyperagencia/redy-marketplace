@@ -15,6 +15,8 @@ import Link from "next/link";
 import ProductGallery from "@/components/marketplace/product/ProductGallery";
 import AddToCartButton from "@/components/marketplace/product/AddToCartButton";
 import SellerCard from "@/components/marketplace/product/SellerCard";
+import TrackEvent from "@/components/analytics/TrackEvent";
+import { AnalyticsEvent } from "@/lib/analytics/events";
 
 export default async function ProductDetailPage({
   params,
@@ -62,6 +64,16 @@ export default async function ProductDetailPage({
 
   return (
     <main className="min-h-screen bg-gray-50 pt-20">
+        <TrackEvent
+          event={AnalyticsEvent.ProductViewed}
+          properties={{
+            product_id: product.id,
+            name: product.name,
+            price: product.price,
+            category: category?.slug,
+            vendor_id: product.vendor_id,
+          }}
+        />
         {/* Breadcrumbs */}
         <div className="bg-white border-b border-gray-200">
           <div className="container mx-auto px-4 py-4">

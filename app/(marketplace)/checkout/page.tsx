@@ -9,6 +9,8 @@ import { formatRut, validateRut } from "@/lib/utils/rut";
 import { ArrowLeft, Lock, User, MapPin, CreditCard, Package } from "lucide-react";
 import Link from "next/link";
 import { initMercadoPago, Payment } from '@mercadopago/sdk-react';
+import { usePostHog } from "posthog-js/react";
+import { AnalyticsEvent } from "@/lib/analytics/events";
 
 // Inicializar MercadoPago con validación
 if (typeof window !== 'undefined') {
@@ -27,6 +29,7 @@ if (typeof window !== 'undefined') {
 export default function CheckoutPage() {
   const router = useRouter();
   const supabase = createClient();
+  const posthog = usePostHog();
   const { items, total, vendorId, vendorName, clearCart } = useCart();
   
   const [user, setUser] = useState<any>(null);
@@ -71,7 +74,13 @@ export default function CheckoutPage() {
       
       setUser(user);
       setProfile(profile);
-      
+
+      posthog?.capture(AnalyticsEvent.CheckoutStarted, {
+        vendor_id: vendorId,
+        item_count: items.length,
+        total,
+      });
+
       // Pre-llenar formulario con datos del perfil
       setFormData({
         rut: profile?.rut || '',
@@ -125,146 +134,50 @@ export default function CheckoutPage() {
     }
   };
 
- const onSubmit = async ({ selectedPaymentMethod, formData: paymentFormData }: any) => {
+ const onSubmit = async ({ formData: paymentFormData }: any) => {
   try {
-    console.log('=== PAYMENT DATA RECEIVED ===');
-    console.log('Selected payment method:', selectedPaymentMethod);
-    console.log('Form data:', paymentFormData);
-    console.log('============================');
-
-    // Validar que tengamos los datos necesarios
     if (!paymentFormData) {
       throw new Error('No se recibieron datos de pago');
     }
 
-    // Validar stock de todos los productos antes de procesar
-    const stockValidation = await Promise.all(
-      items.map(async (item) => {
-        const { data: product } = await supabase
-          .from('products')
-          .select('stock, name')
-          .eq('id', item.product_id)
-          .single();
+    posthog?.capture(AnalyticsEvent.PaymentSubmitted, {
+      vendor_id: vendorId,
+      item_count: items.length,
+      total,
+    });
 
-        return {
-          product_id: item.product_id,
-          name: product?.name || item.name,
-          hasStock: product && product.stock > 0
-        };
-      })
-    );
-
-    const outOfStockProducts = stockValidation.filter(p => !p.hasStock);
-    if (outOfStockProducts.length > 0) {
-      const productNames = outOfStockProducts.map(p => p.name).join(', ');
-      throw new Error(`Los siguientes productos ya no están disponibles: ${productNames}. Por favor remuévelos del carrito e intenta de nuevo.`);
-    }
-
-    // Calcular subtotal y comisión (15% de REDY)
-const subtotal = total;
-const commissionTotal = Math.round(total * 0.15);
-
-// Crear orden en la base de datos primero
-const { data: order, error: orderError } = await supabase
-  .from('orders')
-  .insert({
-    buyer_id: user.id,
-    vendor_id: vendorId,
-    subtotal: subtotal,
-    commission_total: commissionTotal,
-    total: total,
-    status: 'pending',
-    shipping_address: formData.address,
-    shipping_city: formData.city,
-    shipping_region: formData.region,
-    shipping_phone: formData.phone,
-    buyer_rut: formData.rut,
-    buyer_notes: formData.notes,
-  })
-  .select()
-  .single();
-
-    if (orderError) throw orderError;
-
-    console.log('✅ Order created:', order.id);
-
-    // Crear items de la orden con comisión y monto del vendedor
-const orderItems = items.map(item => {
-  const commissionAmount = Math.round(item.price * 0.15); // 15% comisión
-  const vendorAmount = item.price - commissionAmount; // 85% para vendedor
-  
-  return {
-    order_id: order.id,
-    product_id: item.product_id,
-    vendor_id: vendorId,
-    price: item.price,
-    commission_amount: commissionAmount,
-    vendor_amount: vendorAmount,
-  };
-});
-
-const { error: itemsError } = await supabase
-  .from('order_items')
-  .insert(orderItems);
-
-if (itemsError) throw itemsError;
-    console.log('✅ Order items created');
-
-    // Preparar datos del pago
-    const paymentPayload = {
-      orderId: order.id,
-      paymentData: {
-        ...paymentFormData,
-        email: formData.email,
-        rut: formData.rut.replace(/\./g, '').replace(/-/g, ''),
-      },
-    };
-
-    console.log('📤 Sending to API:', paymentPayload);
-
-    // Procesar pago con MercadoPago
+    // El servidor recalcula precios/total, crea la orden, cobra y descuenta stock.
     const response = await fetch('/api/mercadopago/process-payment', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(paymentPayload),
+      body: JSON.stringify({
+        items: items.map((item) => ({ product_id: item.product_id })),
+        shipping: {
+          address: formData.address,
+          city: formData.city,
+          region: formData.region,
+          phone: formData.phone,
+          rut: formData.rut,
+          notes: formData.notes,
+        },
+        paymentData: {
+          ...paymentFormData,
+          email: formData.email,
+          rut: formData.rut,
+        },
+      }),
     });
 
     const result = await response.json();
-    console.log('📥 API Response:', result);
 
-    if (result.success) {
-      console.log('✅ Payment successful!');
-
-      // Decrementar stock de productos
-      await Promise.all(
-        items.map(async (item) => {
-          // Obtener stock actual
-          const { data: currentProduct } = await supabase
-            .from('products')
-            .select('stock')
-            .eq('id', item.product_id)
-            .single();
-
-          if (currentProduct && currentProduct.stock > 0) {
-            // Decrementar stock
-            await supabase
-              .from('products')
-              .update({ stock: currentProduct.stock - 1 })
-              .eq('id', item.product_id);
-          }
-        })
-      );
-
-      // Limpiar carrito
+    if (result.success && result.orderId) {
       clearCart();
-
-      // Redirigir a página de éxito
-      router.push(`/orden/${order.id}/confirmacion`);
+      router.push(`/orden/${result.orderId}/confirmacion`);
     } else {
       throw new Error(result.error || 'Error al procesar el pago');
     }
   } catch (error: any) {
-    console.error('❌ Submit error:', error);
+    console.error('Submit error:', error);
     alert('Error al procesar la compra: ' + error.message);
   }
 };
@@ -527,6 +440,21 @@ if (itemsError) throw itemsError;
       }}
       onError={onError}
     />
+
+    {process.env.NEXT_PUBLIC_MP_TEST_BYPASS === '1' && (
+      <div className="mt-6 border-t border-dashed border-gray-300 pt-6">
+        <p className="text-xs text-gray-500 mb-2">
+          Modo prueba (sin MercadoPago). Solo para verificar el flujo.
+        </p>
+        <button
+          type="button"
+          onClick={() => onSubmit({ formData: { payment_method_id: 'master' } })}
+          className="w-full bg-gray-800 hover:bg-black text-white py-3 rounded-xl font-semibold transition-colors"
+        >
+          Simular pago aprobado (TEST)
+        </button>
+      </div>
+    )}
   </div>
 )}
             </div>

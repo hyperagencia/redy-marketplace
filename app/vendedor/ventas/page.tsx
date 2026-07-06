@@ -21,7 +21,7 @@ export default async function VentasPage() {
   // Calcular estadísticas
   const totalOrders = orders?.length || 0;
   const pendingOrders = orders?.filter(o => o.status === "paid")?.length || 0;
-  const completedOrders = orders?.filter(o => o.status === "completed")?.length || 0;
+  const completedOrders = orders?.filter(o => o.status === "delivered")?.length || 0;
 
   // Calcular ingresos
   const totalRevenue = orders?.reduce((sum, order) => {
@@ -43,7 +43,7 @@ export default async function VentasPage() {
     }, 0) || 0;
 
   const availableRevenue = orders
-    ?.filter(o => o.status === "completed")
+    ?.filter(o => o.status === "delivered")
     ?.reduce((sum, order) => {
       const items = order.order_items || [];
       const vendorAmount = items.reduce((itemSum: number, item: any) => 
@@ -166,7 +166,7 @@ export default async function VentasPage() {
                           ⏳ Pendiente de entrega
                         </span>
                       )}
-                      {order.status === "completed" && (
+                      {order.status === "delivered" && (
                         <span className="px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
                           ✓ Completada
                         </span>
